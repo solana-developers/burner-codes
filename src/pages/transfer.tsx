@@ -96,7 +96,7 @@ export default function Page() {
           SystemProgram.transfer({
             fromPubkey: burner.publicKey,
             toPubkey: publicKey,
-            lamports: amount * LAMPORTS_PER_SOL + LAMPORTS_PER_SIGNER,
+            lamports: amount * LAMPORTS_PER_SOL,
           }),
         );
 
