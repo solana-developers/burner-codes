@@ -1,0 +1,76 @@
+/* for the love of tailwind */
+@tailwind base;
+@tailwind components;
+
+body {
+  @apply bg-slate-100;
+  /* @apply font-sans; */
+}
+
+.container {
+  @apply max-w-3xl px-4 mx-auto;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+  @apply bg-white border border-gray-300;
+  @apply px-4 py-2 rounded-lg;
+
+  @apply disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-default !important;
+}
+/* hide the step arrows for input forms and dropdown arrows for select */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* -moz-appearance: textfield; */
+  @apply appearance-none;
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="submit"],
+input[type="button"],
+.btn,
+button {
+  @apply border border-transparent rounded-lg;
+  @apply px-4 py-2 rounded-lg;
+  @apply disabled:pointer-events-none !important;
+
+  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-200 !important;
+}
+.btn-dark {
+  @apply text-white bg-gray-800 hover:bg-gray-900;
+  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-200 !important;
+}
+.btn-blue {
+  @apply text-white bg-blue-500 hover:bg-blue-600;
+  @apply disabled:text-gray-600 disabled:bg-gray-300;
+}
+.btn-green {
+  @apply text-black bg-green-300 hover:bg-green-600;
+}
+.btn-outline {
+  @apply text-black bg-transparent border-gray-300 hover:border-gray-500;
+  @apply disabled:text-gray-400 disabled:border-gray-300 !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-semibold;
+}
+
+/* 
+  Globally reusable component styles
+*/
+.card {
+  @apply bg-white border border-gray-300;
+  @apply p-6 rounded-lg;
+  @apply space-y-1;
+}
+
+/* utilities at the end */
+@tailwind utilities;

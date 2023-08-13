@@ -1,0 +1,25 @@
+/**
+  Styles for dialog
+*/
+
+.dialog {
+  @apply relative z-50;
+}
+.overlay {
+  @apply fixed inset-0;
+  @apply bg-white/5 backdrop-blur-md;
+}
+.container {
+  @apply fixed inset-0 flex items-center justify-center;
+  @apply p-3 md:p-8;
+}
+
+/* .dialog {
+  @apply p-4;
+} */
+
+.panel {
+  @apply w-full p-2 space-y-4 border rounded-lg md:p-4;
+  @apply bg-white border-gray-300 shadow-xl;
+  @apply max-h-full overflow-auto;
+}

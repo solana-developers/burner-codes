@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Disallow: /api/
+Disallow: /auth/
+Disallow: /claim/
+
+# Host
+# Host: https://solana.com/
+
+# Sitemaps
+# Sitemap: https://solana.com/sitemap.xml

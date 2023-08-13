@@ -1,0 +1,29 @@
+/*
+  Style the simple card components
+*/
+
+.card {
+  @apply bg-white border border-gray-300;
+  @apply p-6 rounded-lg;
+  @apply space-y-2;
+}
+
+.cost {
+  @apply flex items-center gap-2 text-lg align-middle;
+  @apply font-semibold;
+}
+
+/* style the table portion */
+.table {
+  @apply w-full text-gray-500;
+}
+.table .label {
+  @apply text-left;
+  @apply flex items-center gap-1;
+}
+.table .label svg {
+  @apply w-4 h-4;
+}
+.table .value {
+  @apply text-right;
+}
