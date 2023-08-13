@@ -16,8 +16,8 @@ const config: DefaultSeoProps = {
     images: [
       {
         url: "https://burner.codes/logo.png",
-        // width: 256,
-        // height: 256,
+        width: 256,
+        height: 256,
         alt: "burner.codes",
       },
     ],
