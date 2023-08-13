@@ -164,7 +164,7 @@ export default function Page() {
       <main className="container max-w-lg py-10 space-y-8 md:py-20">
         <section className="space-y-6">
           <section className="space-y-2">
-            <h1 className="text-4xl text-center">Transfer via Link</h1>
+            <h1 className="text-4xl text-center">Send via Link</h1>
 
             <p className="text-center text-gray-500">on Solana {cluster}</p>
           </section>
@@ -220,7 +220,7 @@ export default function Page() {
 
               <p>or</p>
 
-              <Link href="/transfer" className="btn btn-outline">
+              <Link href="/send" className="btn btn-outline">
                 Send to Address
               </Link>
             </section>

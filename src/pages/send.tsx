@@ -142,7 +142,7 @@ export default function Page() {
       <main className="container max-w-lg py-10 space-y-8 md:py-20">
         <section className="space-y-6">
           <section className="space-y-2">
-            <h1 className="text-4xl text-center">Transfer to Address</h1>
+            <h1 className="text-4xl text-center">Send to Address</h1>
 
             <p className="text-center text-gray-500">on Solana {cluster}</p>
           </section>
@@ -219,7 +219,7 @@ export default function Page() {
                 // onClick={() => ()}
                 disabled={processing}
               >
-                Transfer to Address
+                Send to Address
               </button>
 
               <p>or</p>

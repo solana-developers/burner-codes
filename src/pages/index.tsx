@@ -24,7 +24,7 @@ export default function Page() {
     setTransferLink(
       `${location.protocol}//${
         location.host
-      }/transfer?to=${burner?.publicKey.toBase58()}`,
+      }/send?to=${burner?.publicKey.toBase58()}`,
     );
   }, [burner?.publicKey]);
 
@@ -63,7 +63,7 @@ export default function Page() {
           <section className="text-center"></section>
 
           <QRCodeCard
-            value={`/transfer?to=${burner?.publicKey.toBase58() || ""}`}
+            value={`/send?to=${burner?.publicKey.toBase58() || ""}`}
             className="max-w-[400px] w-min mx-auto"
             onClick={() =>
               copyAddress(transferLink, "Copied transfer link to clipboard")
@@ -97,7 +97,7 @@ export default function Page() {
               <Link href="/link" className="btn btn-dark">
                 Send with Link
               </Link>
-              <Link href="/transfer" className="btn btn-dark">
+              <Link href="/send" className="btn btn-dark">
                 Send to Address
               </Link>
             </section>
