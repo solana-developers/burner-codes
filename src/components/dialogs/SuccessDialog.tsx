@@ -43,7 +43,7 @@ export default function SuccessDialog({
         )}
       </section>
 
-      <div className="grid grid-cols-2 gap-3 p-2 mx-auto text-center">
+      <div className="grid gap-3 p-2 mx-auto text-center md:grid-cols-2">
         <button onClick={() => setIsOpen(false)} className="btn btn-outline">
           Close
         </button>
