@@ -15,9 +15,9 @@ const config: DefaultSeoProps = {
     url: "https://burner.codes/",
     images: [
       {
-        url: "https://burner.codes/logo.png",
-        width: 256,
-        height: 256,
+        url: "https://burner.codes/simple-og.png",
+        width: 1600,
+        height: 900,
         alt: "burner.codes",
       },
     ],
@@ -25,8 +25,7 @@ const config: DefaultSeoProps = {
   twitter: {
     site: `@solana_devs`,
     handle: `@nickfrosty`,
-    cardType: "summary",
-    // cardType: "summary_large_image",
+    cardType: "summary_large_image",
   },
 };
 
