@@ -27,7 +27,7 @@ import SuccessDialog from "@/components/dialogs/SuccessDialog";
 const seo: NextSeoProps = {
   title: "transfer SOL tokens",
   description:
-    "Quickly transfer SOL tokens to different burner wallets and Solana addresses.",
+    "Quickly transfer SOL tokens to someone using a simple link. Share the link, send the tokens.",
 };
 
 // define the success dialog details to be displayed
@@ -164,7 +164,7 @@ export default function Page() {
       <main className="container max-w-lg py-10 space-y-8 md:py-20">
         <section className="space-y-6">
           <section className="space-y-2">
-            <h1 className="text-4xl text-center">Send via Link</h1>
+            <h1 className="text-4xl text-center">Send with a Link</h1>
 
             <p className="text-center text-gray-500">on Solana {cluster}</p>
           </section>
