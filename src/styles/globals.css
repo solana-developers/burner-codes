@@ -3,7 +3,7 @@
 @tailwind components;
 
 body {
-  @apply bg-slate-100;
+  @apply bg-slate-200;
   /* @apply font-sans; */
 }
 
@@ -16,7 +16,7 @@ input[type="number"],
 input[type="email"],
 input[type="password"],
 textarea {
-  @apply bg-white border border-gray-300;
+  @apply bg-white border border-gray-400;
   @apply px-4 py-2 rounded-lg;
 
   @apply disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-default !important;
@@ -52,7 +52,7 @@ button {
   @apply text-black bg-green-300 hover:bg-green-600;
 }
 .btn-outline {
-  @apply text-black bg-transparent border-gray-300 hover:border-gray-500;
+  @apply text-black bg-transparent border-gray-400 hover:border-gray-600;
   @apply disabled:text-gray-400 disabled:border-gray-300 !important;
 }
 
@@ -67,7 +67,7 @@ h4 {
   Globally reusable component styles
 */
 .card {
-  @apply bg-white border border-gray-300;
+  @apply bg-white border border-gray-400;
   @apply p-6 rounded-lg;
   @apply space-y-1;
 }
