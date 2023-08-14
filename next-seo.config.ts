@@ -5,7 +5,8 @@ const config: DefaultSeoProps = {
   title: "burner.codes",
   titleTemplate: `burner.codes - %s`,
   defaultTitle: "burner.codes",
-  description: "",
+  description:
+    "Simple burner wallets for the Solana blockchain. No app. No download. Just your open your browser and use it.",
 
   // social media card data
   openGraph: {

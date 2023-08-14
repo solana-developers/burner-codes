@@ -12,6 +12,8 @@ import { copyToClipboard, formatLamportsToSol } from "@/utils/helpers";
 // define page specific seo settings
 const seo: NextSeoProps = {
   title: "simple burner wallets on Solana",
+  description:
+    "Simple burner wallets for the Solana blockchain. No app. No download. Just your open your browser and use it.",
 };
 
 export default function Page() {
