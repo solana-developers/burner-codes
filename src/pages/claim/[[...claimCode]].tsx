@@ -1,6 +1,6 @@
 import type { NextSeoProps } from "next-seo";
 import DefaultLayout from "@/layouts/default";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import type { InferGetServerSidePropsType } from "next";
 
@@ -89,7 +89,7 @@ export async function getServerSideProps({
         claimKey: base58.encode(keypair.secretKey),
         balance,
         address: keypair.publicKey.toBase58(),
-        link: "todo: claim link via props",
+        link: "", // note: this is updated via useEffect on the client
       },
     },
   };
@@ -108,6 +108,10 @@ export default function Page({
   const [processing, setProcessing] = useState<boolean>(false);
   const [explorerLink, setExplorerLink] = useState<string>("");
   const [address, setAddress] = useState<string>("");
+
+  useEffect(() => {
+    claim.link = location.href;
+  }, []);
 
   // Simple helper function for the copy to clipboard with a message
   function copyClaimLink() {
