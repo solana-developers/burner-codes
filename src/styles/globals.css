@@ -19,7 +19,7 @@ textarea {
   @apply bg-white border border-gray-400;
   @apply px-4 py-2 rounded-lg;
 
-  @apply disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-default !important;
+  @apply disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-default !important;
 }
 /* hide the step arrows for input forms and dropdown arrows for select */
 input::-webkit-outer-spin-button,
@@ -38,11 +38,11 @@ button {
   @apply px-4 py-2 rounded-lg;
   @apply disabled:pointer-events-none !important;
 
-  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-200 !important;
+  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-300 !important;
 }
 .btn-dark {
   @apply text-white bg-gray-800 hover:bg-gray-900;
-  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-200 !important;
+  @apply disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-300 !important;
 }
 .btn-blue {
   @apply text-white bg-blue-500 hover:bg-blue-600;
@@ -53,7 +53,7 @@ button {
 }
 .btn-outline {
   @apply text-black bg-transparent border-gray-400 hover:border-gray-600;
-  @apply disabled:text-gray-400 disabled:border-gray-300 !important;
+  @apply disabled:text-gray-400 disabled:border-gray-400 !important;
 }
 
 h1,
