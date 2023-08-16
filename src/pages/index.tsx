@@ -7,7 +7,12 @@ import Link from "next/link";
 import QRCodeCard from "@/components/QRCodeCard";
 import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { useGlobalContext } from "@/contexts/GlobalContext";
-import { copyToClipboard, formatLamportsToSol } from "@/utils/helpers";
+import {
+  copyToClipboard,
+  explorerURL,
+  formatLamportsToSol,
+} from "@/utils/helpers";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 // define page specific seo settings
 const seo: NextSeoProps = {
@@ -17,10 +22,12 @@ const seo: NextSeoProps = {
 };
 
 export default function Page() {
-  const { burner, balance, cluster } = useGlobalContext();
+  const { burner, balance, setBalance, cluster, connection } =
+    useGlobalContext();
 
   // track the needed state for the new various dialogs
   const [transferLink, setTransferLink] = useState<string>();
+  const [airdropping, setAirdropping] = useState<boolean>(false);
 
   useEffect(() => {
     setTransferLink(
@@ -29,6 +36,34 @@ export default function Page() {
       }/send?to=${burner?.publicKey.toBase58()}`,
     );
   }, [burner?.publicKey]);
+
+  /**
+   * Wrapper function for requesting airdrops on devnet
+   */
+  async function requestAirdrop(lamports: number = LAMPORTS_PER_SOL / 2) {
+    setAirdropping(true);
+    try {
+      if (!burner?.publicKey)
+        return toast.error("Unable to locate burner address");
+
+      const sig = await connection.requestAirdrop(burner?.publicKey, lamports);
+
+      // optimistically update the balance
+      setBalance((prev: number) => prev + lamports);
+
+      console.log("View on Explorer:", explorerURL({ sig, cluster }));
+
+      toast.success("Airdrop complete");
+    } catch (err) {
+      console.error(err);
+
+      // @ts-ignore
+      if (err?.message.startsWith("429")) {
+        toast.error("Airdrop rate limit exceeded.\nPlease try again later.");
+      } else toast.error("Unable to perform airdrop");
+    }
+    setAirdropping(false);
+  }
 
   /**
    * Simple helper function for the copy to clipboard with a message
@@ -102,6 +137,25 @@ export default function Page() {
               <Link href="/send" className="btn btn-dark">
                 Send to Address
               </Link>
+            </section>
+          </section>
+
+          <section className="pt-8 space-y-4">
+            <div className="flex items-center justify-center gap-3 text-center align-middle">
+              <div className="w-full h-1 border-t border-gray-400"></div>
+              <div className="whitespace-nowrap">More Options</div>
+              <div className="w-full h-1 border-t border-gray-400"></div>
+            </div>
+
+            <section className="grid grid-cols-1 gap-3 text-center">
+              <button
+                type={"button"}
+                onClick={() => requestAirdrop()}
+                className="btn btn-dark"
+                disabled={airdropping}
+              >
+                Request Airdrop
+              </button>
             </section>
           </section>
         </section>
