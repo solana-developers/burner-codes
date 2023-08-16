@@ -2,6 +2,7 @@ import {
   createContext,
   FC,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useMemo,
@@ -14,13 +15,13 @@ import { LOCAL_STORAGE_BURNER_KEY } from "@/utils/const";
 export interface MasterConfigurationState {
   connection: Connection;
   loading: boolean;
-  setLoading(loading: boolean): void;
+  setLoading(loading: SetStateAction<boolean>): void;
   burner: Keypair | undefined;
-  setBurner(keypair: Keypair): void;
+  setBurner(keypair: SetStateAction<Keypair | undefined>): void;
   balance: number;
-  setBalance(balance: number): void;
+  setBalance(balance: SetStateAction<number>): void;
   cluster: Cluster;
-  setCluster(cluster: Cluster): void;
+  setCluster(cluster: SetStateAction<Cluster>): void;
   minRentCost: number;
 }
 
