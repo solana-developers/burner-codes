@@ -23,10 +23,10 @@ export default function AppHeader({}: ComponentProps) {
           </span>
         </Link>
 
-        {/* <button className="flex items-center gap-2 btn btn-outline">
+        <Link href="/scan" className="flex items-center gap-2 btn btn-outline">
           <CameraIcon className="w-5 h-5" />
           <span className="">Scan</span>
-        </button> */}
+        </Link>
       </nav>
     </header>
   );
