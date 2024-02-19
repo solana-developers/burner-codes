@@ -3,14 +3,22 @@ import {
   FC,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
-import { Cluster, clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
+import {
+  Cluster,
+  clusterApiUrl,
+  Connection,
+  Keypair,
+  Transaction,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import base58 from "bs58";
 import { LOCAL_STORAGE_BURNER_KEY } from "@/lib/const";
+import { TransactionSheet } from "@/components/sheets/TransactionSheet";
 
 export interface MasterConfigurationState {
   connection: Connection;
@@ -23,6 +31,14 @@ export interface MasterConfigurationState {
   cluster: Cluster;
   setCluster(cluster: SetStateAction<Cluster>): void;
   minRentCost: number;
+  sendTransaction: (
+    transaction:
+      | Transaction
+      | VersionedTransaction
+      | "temp" /* todo: remove this */,
+  ) => Promise<void>;
+  // isTransactionSheetOpen: boolean;
+  // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
 
 export const GlobalContext = createContext<MasterConfigurationState>(
@@ -40,6 +56,12 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   const [burner, setBurner] = useState<Keypair | undefined>();
   const [cluster, setCluster] = useState<Cluster>("devnet");
   const [balance, setBalance] = useState<number>(0);
+
+  const [transaction, setTransaction] = useState<
+    Transaction | VersionedTransaction | null | "temp"
+  >(null);
+  const [isTransactionSheetOpen, setIsTransactionSheetOpen] =
+    useState<boolean>(false);
 
   // current base rent for 0 bytes is: 890_880 lamports
   const [minRentCost, setMinRentCost] = useState<number>(890_880);
@@ -112,6 +134,26 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   }
 
   /**
+   * Prepare a transaction and request the user sign it
+   */
+  const sendTransaction = useCallback(
+    async (
+      transaction:
+        | Transaction
+        | VersionedTransaction
+        | "temp" /*todo: remove null*/,
+    ) => {
+      console.log("[sendTransaction]", transaction);
+
+      // todo: pre parse the transaction?
+
+      setTransaction(transaction);
+      setIsTransactionSheetOpen(true);
+    },
+    [setIsTransactionSheetOpen, setTransaction],
+  );
+
+  /**
    * Get the initial state data for the keypair/cluster
    */
   useEffect(() => {
@@ -144,9 +186,19 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         cluster,
         setCluster,
         minRentCost,
+        sendTransaction,
       }}
     >
       {children}
+
+      {/* todo: add some sort of sheet error messages? */}
+      {!!transaction && (
+        <TransactionSheet
+          transaction={transaction}
+          isOpen={isTransactionSheetOpen}
+          setIsOpen={setIsTransactionSheetOpen}
+        />
+      )}
     </GlobalContext.Provider>
   );
 };
