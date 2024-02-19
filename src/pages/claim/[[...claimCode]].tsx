@@ -20,11 +20,11 @@ import {
   explorerURL,
   formatLamportsToSol,
   removeClaimCode,
-} from "@/utils/helpers";
+} from "@/lib/helpers";
 import base58 from "bs58";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { LAMPORTS_PER_SIGNER } from "@/utils/const";
+import { LAMPORTS_PER_SIGNER } from "@/lib/const";
 import SuccessDialog from "@/components/dialogs/SuccessDialog";
 
 // define page specific seo settings

@@ -1,6 +1,6 @@
 "use client";
 
-import { copyToClipboard } from "@/utils/helpers";
+import { copyToClipboard } from "@/lib/helpers";
 import QRCodeCard from "../QRCodeCard";
 import { toast } from "react-hot-toast";
 import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";

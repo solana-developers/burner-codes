@@ -1,7 +1,7 @@
 import type { NextSeoProps } from "next-seo";
 import DefaultLayout from "@/layouts/default";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { explorerURL, formatLamportsToSol } from "@/utils/helpers";
+import { explorerURL, formatLamportsToSol } from "@/lib/helpers";
 
 import { useGlobalContext } from "@/contexts/GlobalContext";
 import { toast } from "react-hot-toast";
@@ -12,7 +12,7 @@ import {
   Transaction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { LAMPORTS_PER_SIGNER } from "@/utils/const";
+import { LAMPORTS_PER_SIGNER } from "@/lib/const";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import SuccessDialog from "@/components/dialogs/SuccessDialog";

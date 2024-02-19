@@ -13,12 +13,8 @@ import {
   Transaction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { LAMPORTS_PER_SIGNER } from "@/utils/const";
-import {
-  explorerURL,
-  formatLamportsToSol,
-  saveClaimCode,
-} from "@/utils/helpers";
+import { LAMPORTS_PER_SIGNER } from "@/lib/const";
+import { explorerURL, formatLamportsToSol, saveClaimCode } from "@/lib/helpers";
 
 import TransferLinkCreated from "@/components/transfers/TransferLinkCreated";
 import SuccessDialog from "@/components/dialogs/SuccessDialog";

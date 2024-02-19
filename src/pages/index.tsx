@@ -11,7 +11,7 @@ import {
   copyToClipboard,
   explorerURL,
   formatLamportsToSol,
-} from "@/utils/helpers";
+} from "@/lib/helpers";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { Cluster, clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
 import base58 from "bs58";
-import { LOCAL_STORAGE_BURNER_KEY } from "@/utils/const";
+import { LOCAL_STORAGE_BURNER_KEY } from "@/lib/const";
 
 export interface MasterConfigurationState {
   connection: Connection;
