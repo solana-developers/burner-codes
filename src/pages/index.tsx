@@ -13,6 +13,7 @@ import {
   formatLamportsToSol,
 } from "@/utils/helpers";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // define page specific seo settings
 const seo: NextSeoProps = {
@@ -151,10 +152,14 @@ export default function Page() {
               <button
                 type={"button"}
                 onClick={() => requestAirdrop()}
-                className="btn btn-dark"
+                className="inline-flex justify-center btn btn-dark"
                 disabled={airdropping}
               >
                 Request Airdrop
+                <LoadingSpinner
+                  visible={airdropping}
+                  className="absolute right-3"
+                />
               </button>
             </section>
           </section>
