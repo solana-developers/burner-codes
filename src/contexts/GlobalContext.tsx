@@ -32,11 +32,9 @@ export interface MasterConfigurationState {
   setCluster(cluster: SetStateAction<Cluster>): void;
   minRentCost: number;
   sendTransaction: (
-    transaction:
-      | Transaction
-      | VersionedTransaction
-      | "temp" /* todo: remove this */,
+    transaction: Transaction | VersionedTransaction,
   ) => Promise<void>;
+  prepareTransaction: (resolve: PrepareTransactionResolver) => void;
   // isTransactionSheetOpen: boolean;
   // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
@@ -58,7 +56,7 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   const [balance, setBalance] = useState<number>(0);
 
   const [transaction, setTransaction] = useState<
-    Transaction | VersionedTransaction | null | "temp"
+    Transaction | VersionedTransaction | null
   >(null);
   const [isTransactionSheetOpen, setIsTransactionSheetOpen] =
     useState<boolean>(false);
@@ -134,23 +132,54 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   }
 
   /**
-   * Prepare a transaction and request the user sign it
+   * Send a transaction to the user and request their approval/signature
    */
   const sendTransaction = useCallback(
-    async (
-      transaction:
-        | Transaction
-        | VersionedTransaction
-        | "temp" /*todo: remove null*/,
-    ) => {
+    async (transaction: Transaction | VersionedTransaction) => {
       console.log("[sendTransaction]", transaction);
 
       // todo: pre parse the transaction?
 
       setTransaction(transaction);
       setIsTransactionSheetOpen(true);
+      setLoading(false);
     },
-    [setIsTransactionSheetOpen, setTransaction],
+    [setIsTransactionSheetOpen, setTransaction, setLoading],
+  );
+
+  /**
+   * Prepare a transaction and request the user sign it
+   */
+  const prepareTransaction = useCallback(
+    async (resolver: PrepareTransactionResolver) => {
+      console.log("[prepareTransaction]");
+
+      setLoading(true);
+      setIsTransactionSheetOpen(true);
+
+      try {
+        const { transaction, error } = await resolver();
+
+        // todo: we should support some sort of error/warning messages to provide to a user
+
+        if (!!error) {
+          alert(`Error: ${error}`);
+        }
+
+        if (transaction) {
+          sendTransaction(transaction);
+        } else {
+          alert("no transaction...");
+        }
+      } catch (err) {
+        // todo: we should support some sort of error/warning messages to provide to a user
+        console.error("Unable to resolve transaction");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setIsTransactionSheetOpen, setLoading, sendTransaction],
   );
 
   /**
@@ -187,18 +216,33 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         setCluster,
         minRentCost,
         sendTransaction,
+        prepareTransaction,
       }}
     >
       {children}
 
-      {/* todo: add some sort of sheet error messages? */}
-      {!!transaction && (
-        <TransactionSheet
-          transaction={transaction}
-          isOpen={isTransactionSheetOpen}
-          setIsOpen={setIsTransactionSheetOpen}
-        />
-      )}
+      <TransactionSheet
+        transaction={transaction}
+        isOpen={isTransactionSheetOpen}
+        setIsOpen={setIsTransactionSheetOpen}
+      />
     </GlobalContext.Provider>
   );
+};
+
+/**
+ * function that resolves a promise containing a payload for the transaction sheet
+ */
+type PrepareTransactionResolver =
+  () => Promise<PrepareTransactionResolverPayload>;
+
+type PrepareTransactionResolverPayload = {
+  /** the transaction for the user to sign */
+  transaction?: Transaction | VersionedTransaction;
+
+  /** error message and data to be displayed in the UI */
+  error?: string;
+
+  /** payload with additional details for the UI */
+  payload?: object;
 };
