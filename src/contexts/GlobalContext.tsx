@@ -35,6 +35,7 @@ export interface MasterConfigurationState {
     transaction: Transaction | VersionedTransaction,
   ) => Promise<void>;
   prepareTransaction: (resolve: PrepareTransactionResolver) => void;
+  resetPopup: () => void;
   // isTransactionSheetOpen: boolean;
   // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
@@ -183,6 +184,20 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   );
 
   /**
+   *
+   */
+  const resetPopup = useCallback(() => {
+    setTransaction(null);
+    setLoading(false);
+    setIsTransactionSheetOpen(false);
+  }, [
+    transaction,
+    isTransactionSheetOpen,
+    setIsTransactionSheetOpen,
+    setLoading,
+  ]);
+
+  /**
    * Get the initial state data for the keypair/cluster
    */
   useEffect(() => {
@@ -217,6 +232,7 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         minRentCost,
         sendTransaction,
         prepareTransaction,
+        resetPopup,
       }}
     >
       {children}
