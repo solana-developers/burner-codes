@@ -56,41 +56,57 @@ export async function POST(req: Request) {
       throw Error("Invalid address");
     }
 
-    const getRes: object = await fetch(url, {
+    const responsePayload = {
+      get: {},
+      post: {},
+    };
+
+    await fetch(url, {
       method: "GET",
       headers: {
         "User-Agent": "burner.codes",
         "Accept-Encoding": "application/json",
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
       },
     }).then(async (res) => {
       console.log("GET: received");
-      if (!res.ok) throw Error("Bad proxy response: GET");
 
-      return await res.json();
+      const data = await res.text();
+      console.log("data:", data);
+
+      if (!res.ok) {
+        throw Error("Bad proxy response: GET");
+      }
+
+      responsePayload.get = JSON.parse(data);
+      console.info("getRes:", responsePayload.get);
     });
 
-    const postRes: object = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         "User-Agent": "burner.codes",
-        "Accept-Encoding": "application/json",
+        // "Accept-Encoding": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        address: pubkey.toBase58(),
+        account: pubkey.toBase58(),
       }),
     }).then(async (res) => {
       console.log("POST: received");
-      if (!res.ok) throw Error("Bad proxy response: POST");
 
-      return await res.json();
+      const data = await res.text();
+      console.log("data:", data);
+
+      if (!res.ok) {
+        throw Error("Bad proxy response: POST");
+      }
+
+      responsePayload.post = JSON.parse(data);
+      console.info("postRes:", responsePayload.post);
     });
 
-    console.info("getRes:", getRes);
-    console.info("postRes:", postRes);
-
-    return Response.json({ get: getRes, post: postRes });
+    return Response.json(responsePayload);
   } catch (err) {
     console.warn("[solana pay proxy]");
     console.warn(err);
