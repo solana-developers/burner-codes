@@ -9,7 +9,7 @@ import {
   QrcodeSuccessCallback,
 } from "html5-qrcode";
 import { Html5QrcodeScannerConfig } from "html5-qrcode/esm/html5-qrcode-scanner";
-import { getSolanaAddress } from "./solanaPay/solanaPay";
+import { getSolanaAddress } from "./solana/helpers";
 import {
   parseURL,
   TransactionRequestURL,
