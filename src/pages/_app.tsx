@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
           // Default options for specific types
           success: {
-            className: "text-black",
+            className: "!text-white !bg-green-400",
             icon: <InformationCircleIcon className="w-6 h-6 text-green-600" />,
           },
           error: {
