@@ -63,6 +63,7 @@ export async function POST(req: Request) {
 
     await fetch(url, {
       method: "GET",
+      cache: "no-store",
       headers: {
         "User-Agent": "burner.codes",
         "Accept-Encoding": "application/json",
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
 
     await fetch(url, {
       method: "POST",
+      cache: "no-store",
       headers: {
         "User-Agent": "burner.codes",
         // "Accept-Encoding": "application/json",

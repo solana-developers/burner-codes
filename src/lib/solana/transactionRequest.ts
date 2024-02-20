@@ -52,6 +52,7 @@ export async function proxySolanaPayRequest(
     // todo: perform better handling and retires of these requests?
     const res = await fetch(`/api/solanapay`, {
       method: "POST",
+      cache: "no-store",
       body: JSON.stringify({
         url: url.toString(),
         address,
