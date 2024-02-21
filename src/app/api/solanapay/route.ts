@@ -108,7 +108,7 @@ export async function POST(req: Request) {
       // console.info("postRes:", responsePayload.post);
     });
 
-    return Response.json(responsePayload);
+    return new Response(JSON.stringify(responsePayload));
   } catch (err) {
     console.warn("[solana pay proxy]");
     console.warn(err);
