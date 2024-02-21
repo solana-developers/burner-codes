@@ -1,5 +1,5 @@
 import { toast } from "react-hot-toast";
-import { memo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   Sheet,
   SheetContent,
@@ -15,6 +15,7 @@ import Image from "next/image";
 import solanaIconBlack from "@/../public/logos/solana-icon-black.svg";
 import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import { LoadingSpinner } from "../LoadingSpinner";
+import { TransactionDetails } from "@/types";
 
 type TransactionSheetProps = {
   isOpen: boolean;
@@ -30,9 +31,23 @@ export const TransactionSheet = memo(
       // connection,
       burner,
       loading,
+      transactionDetails,
     } = useGlobalContext();
 
-    console.log("transaction::", transaction);
+    const ComponentToShow: React.ReactNode = useMemo(() => {
+      if (transaction && transactionDetails) {
+        console.log("transaction found:", transaction);
+        return (
+          <SignTransactionDetails
+            transaction={transaction}
+            transactionDetails={transactionDetails}
+          />
+        );
+      }
+
+      //
+      return <></>;
+    }, [transaction, loading]);
 
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -53,7 +68,7 @@ export const TransactionSheet = memo(
           </SheetHeader>
 
           {!loading && !!burner ? (
-            <TransactionSheetInner />
+            ComponentToShow
           ) : (
             <section className="mx-auto space-y-1 text-center min-h-[200px] pt-16">
               {/* <h3 className="text-xl font-medium">loading</h3> */}
@@ -67,63 +82,146 @@ export const TransactionSheet = memo(
   },
 );
 
-export const TransactionSheetInner = memo(({}: {}) => {
-  const {
-    // comment for better diffs
-    cluster,
-    connection,
-    burner,
-  } = useGlobalContext();
+export const SignTransactionDetails = memo(
+  ({
+    transaction,
+    transactionDetails,
+  }: {
+    transaction: Transaction | VersionedTransaction;
+    transactionDetails: TransactionDetails;
+  }) => {
+    const {
+      // comment for better diffs
+      cluster,
+      connection,
+      burner,
+      resetPopup,
+    } = useGlobalContext();
 
-  return (
-    <>
-      {/* <SolanaPayHeader
-        title={"title"}
-        url={new URL("https://site.com").hostname}
-      /> */}
+    /**
+     *
+     */
+    const signAndSendTransaction = useCallback(async () => {
+      if (!burner) {
+        throw Error("No wallet found");
+      }
 
-      {/* <TransactionHeaderTransfer label={"Transfer SOL"} /> */}
+      // force the transaction into a versioned transaction
+      if (transaction instanceof Transaction) {
+        transaction = new VersionedTransaction(transaction.compileMessage());
+      }
 
-      {/* <SheetDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </SheetDescription> */}
+      // console.log(
+      //   "isValid before:",
+      //   await connection.isBlockhashValid(
+      //     transaction.message.recentBlockhash,
+      //   ),
+      // );
 
-      <section className="space-y-2">
-        <TransactionLineItemGroup>
-          <TransactionLineItem
-            label={"From"}
-            value={
-              "you"
-              // <>You ({shortWalletAddress(burner!.publicKey.toBase58(), 6)})</>
-            }
-          />
-          <TransactionLineItem
-            isMultiLine={true}
-            label={"Memo"}
-            value={"This is an example memo message"}
-          />
-        </TransactionLineItemGroup>
-        <TransactionLineItemGroup>
-          <TransactionLineItem label={"Solana network"} value={cluster} />
-          <TransactionLineItem
-            label={"Network Fee"}
-            value={`~${formatLamportsToSol(10_000)}`}
-          />
-        </TransactionLineItemGroup>
-      </section>
+      // todo: add the ability to add compute budget instructions
 
-      <section className="flex items-center justify-between gap-2">
-        <button type="button" className="w-full btn btn-outline">
-          Cancel
-        </button>
-        <button type="button" className="w-full btn btn-dark">
-          Confirm
-        </button>
-      </section>
-    </>
-  );
-});
+      // detect if the user is the only signer to replace the blockhash
+      if (
+        transaction.message.header.numRequiredSignatures == 1 &&
+        transaction.message.staticAccountKeys[0].equals(burner.publicKey)
+      ) {
+        // replace the blockhash when the user's wallet is the only signer
+        const blockhash = await connection.getLatestBlockhashAndContext();
+        transaction.message.recentBlockhash = blockhash.value.blockhash;
+        // todo: add error handling around getting the recent blockhash
+      }
+
+      // const simulation = await connection.simulateTransaction(transaction. {
+      //   // accounts:
+      // });
+      // console.log("simulation");
+      // console.log(simulation);
+
+      // console.log(
+      //   "isValid after:",
+      //   await connection.isBlockhashValid(
+      //     transaction.message.recentBlockhash,
+      //   ),
+      // );
+
+      transaction.sign([burner]);
+      console.log("signed transaction");
+      console.log(transaction);
+
+      try {
+        const sig = await connection.sendTransaction(transaction, {
+          maxRetries: 5,
+        });
+
+        console.log("signature:\n", sig);
+        toast.success(`yay: ${sig}`);
+        resetPopup();
+      } catch (err) {
+        if (err instanceof Error) toast.error(err.message);
+
+        toast.error("Failed to send transaction");
+        console.error(err);
+      }
+    }, [connection, burner, transaction]);
+
+    return (
+      <>
+        {/* <SolanaPayHeader
+          title={"title"}
+          url={new URL("https://site.com").hostname}
+        /> */}
+
+        {/* <TransactionHeaderTransfer label={"Transfer SOL"} /> */}
+        {/* <SheetDescription>Display a message here?</SheetDescription> */}
+
+        <section className="space-y-2">
+          <TransactionLineItemGroup>
+            <TransactionLineItem
+              label={"From"}
+              value={
+                burner?.publicKey.equals(transactionDetails.feePayer)
+                  ? `You (${shortWalletAddress(
+                      transactionDetails.feePayer.toBase58(),
+                      6,
+                    )})`
+                  : shortWalletAddress(
+                      transactionDetails.feePayer.toBase58(),
+                      6,
+                    )
+              }
+            />
+            {!!transactionDetails.memo && (
+              <TransactionLineItem
+                isMultiLine={true}
+                label={"Memo"}
+                value={transactionDetails.memo}
+              />
+            )}
+          </TransactionLineItemGroup>
+          <TransactionLineItemGroup>
+            <TransactionLineItem label={"Solana network"} value={cluster} />
+            <TransactionLineItem
+              label={"Network Fee"}
+              value={`~${formatLamportsToSol(transactionDetails.fee)}`}
+            />
+          </TransactionLineItemGroup>
+        </section>
+        <section className="flex items-center justify-between gap-2">
+          <button type="button" className="w-full btn btn-outline">
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => signAndSendTransaction()}
+            className="w-full btn btn-dark"
+          >
+            Confirm
+          </button>
+        </section>
+      </>
+    );
+  },
+);
 
 export const SolanaPayHeader = ({
   title,
