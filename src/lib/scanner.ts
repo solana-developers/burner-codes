@@ -26,7 +26,9 @@ export const qrScannerConfig: Html5QrcodeScannerConfig = {
     Html5QrcodeScanType.SCAN_TYPE_CAMERA,
     Html5QrcodeScanType.SCAN_TYPE_FILE,
   ],
-  // videoConstraints: {}
+  videoConstraints: {
+    facingMode: { ideal: "environment" },
+  },
 };
 
 /**
