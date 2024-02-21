@@ -36,7 +36,6 @@ export const TransactionSheet = memo(
 
     const ComponentToShow: React.ReactNode = useMemo(() => {
       if (transaction && transactionDetails) {
-        console.log("transaction found:", transaction);
         return (
           <SignTransactionDetails
             transaction={transaction}
@@ -50,7 +49,18 @@ export const TransactionSheet = memo(
     }, [transaction, loading]);
 
     return (
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet
+        open={isOpen}
+        onOpenChange={(open) => {
+          // do not allow closing the sheet while the transaction things are loading
+          if (isOpen && loading) return;
+
+          // todo: allow some sort of timeout feature to allow the user to abort after like 5 seconds
+          // showing a message in the UI for it of course
+
+          setIsOpen(open);
+        }}
+      >
         <SheetContent
           side={"bottom"}
           className=" max-h-[98vh] overflow-y-auto overflow-x-hidden border border-gray-500 space-y-5 max-w-lg mx-[4px] bg-white shadow rounded-t-xl md:mx-auto"
