@@ -38,7 +38,7 @@ export interface MasterConfigurationState {
   prepareTransaction: (resolve: PrepareTransactionResolver) => void;
   resetPopup: () => void;
   transactionDetails: TransactionDetails | null;
-  // isTransactionSheetOpen: boolean;
+  isTransactionSheetOpen: boolean;
   // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
 
@@ -157,15 +157,23 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
    */
   const prepareTransaction = useCallback(
     async (resolver: PrepareTransactionResolver) => {
+      if (isTransactionSheetOpen) {
+        return console.log("currently isTransactionSheetOpen open");
+      }
+
       console.log("[prepareTransaction]");
+
+      // if (loading) {
+      //   return console.log("currently loading");
+      // }
 
       setLoading(true);
       setIsTransactionSheetOpen(true);
 
-      while (!burner) {
-        // do nothing since this should only take a short time while the page loads
-        // and we load the keypair from local storage
-      }
+      // while (!burner) {
+      //   // do nothing since this should only take a short time while the page loads
+      //   // and we load the keypair from local storage
+      // }
 
       try {
         let { transaction, error } = await resolver();
@@ -209,7 +217,14 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     },
-    [setIsTransactionSheetOpen, setLoading, sendTransaction, burner],
+    [
+      setIsTransactionSheetOpen,
+      isTransactionSheetOpen,
+      loading,
+      setLoading,
+      sendTransaction,
+      burner,
+    ],
   );
 
   /**
@@ -262,6 +277,8 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         minRentCost,
         sendTransaction,
         prepareTransaction,
+        // setIsTransactionSheetOpen,
+        isTransactionSheetOpen,
         transactionDetails,
         resetPopup,
       }}
