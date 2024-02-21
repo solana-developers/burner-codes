@@ -8,6 +8,8 @@ import { getSolanaAddress } from "@/lib/solana/helpers";
 import { TransactionRequestURL, parseURL } from "@solana/pay";
 import { proxySolanaPayRequest } from "@/lib/solana/transactionRequest";
 import toast from "react-hot-toast";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import Html5QrcodePlugin from "@/components/Html5QrcodePlugin";
 
 const SOLANA_PAY_URL = {
   left: "https://tug-of-war-solana-pay.vercel.app/api/transaction?amount=0.001&instruction=pull_right&network=devnet",
@@ -26,79 +28,123 @@ const seo: NextSeoProps = {
 export default function Page() {
   const {
     // comment for better diffs
-    connection,
     prepareTransaction,
     burner,
+    isTransactionSheetOpen,
+    loading,
   } = useGlobalContext();
 
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  let html5QrcodeScanner: Html5QrcodeScanner;
 
   /**
    * Handle a successfully decoded QR code scan
    */
   const onQRScanSuccess = useCallback<QrcodeSuccessCallback>(
     (decodedText, decodedResult) => {
+      if (isTransactionSheetOpen) {
+        console.log("sheet is open");
+        return;
+      } else {
+        console.log("sheet not open");
+      }
+
       console.log("decodedText:", decodedText);
-      console.log("decodedResult:", decodedResult);
+      // console.log("decodedResult:", decodedResult);
+
+      console.log("pubkey:", burner?.publicKey.toBase58());
+      if (!burner?.publicKey) {
+        console.log("no pubkey found");
+        return;
+      }
+
+      // if (isLoading) {
+      //   console.log("isLoading");
+      //   return;
+      // }
+      // setIsLoading(true);
+
+      // html5QrcodeScanner.pause(true);
+      // html5QrcodeScanner.clear();
 
       try {
         const url = parseURL(decodedText);
-        console.log(url);
+        // console.log("solana pay uri:", url);
 
         if (!!(url as TransactionRequestURL)?.link) {
           // (url as TransactionRequestURL)
-          alert("transaction request");
+          prepareTransaction(async () => {
+            if (isTransactionSheetOpen) {
+              console.log("[prepareTransaction] sheet is open");
+            }
+
+            const solanaPayData = await proxySolanaPayRequest(
+              (url as TransactionRequestURL).link,
+              burner.publicKey.toBase58(),
+            );
+
+            // html5QrcodeScanner.resume();
+
+            return {
+              transaction: solanaPayData.post.transaction,
+              error: solanaPayData.post.error,
+              payload: {
+                __ID: "SolanaPay_Transaction",
+                ...solanaPayData,
+              },
+            };
+          });
+
+          // html5QrcodeScanner.pause(true);
         } else {
+          toast.error("SolanaPay transfer requests are not supported yet");
           // (url as TransferRequestURL)
-          alert("transfer request");
+          // alert("transfer request");
         }
       } catch (err) {}
 
-      // try to read a qr code that is a solana address
-      try {
-        const address = getSolanaAddress(decodedText);
-        alert(`address:${address.toBase58()}`);
-
-        return;
-      } catch (err) {}
-
-      // todo: handle burner code urls natively
-
+      // todo: try to read a qr code that is a solana address
       // try {
-      //   const url = new URL(decodedText);
-
-      //   console.log("URL found:", url);
-
-      //   // handle solana pay urls
-      //   if (url.protocol.toLowerCase().replace(/:$/gi, "") == "solana") {
-      //     alert("solana pay!!");
-      //   }
-
-      //   // todo: handle burner code urls natively
-
-      //   // todo: what other urls should we handle
+      //   const address = getSolanaAddress(decodedText);
+      //   alert(`address:${address.toBase58()}`);
 
       //   return;
-      // } catch (err) {
-      //   // console.log();
-      // }
+      // } catch (err) {}
+
+      // todo: handle burner code urls natively
     },
-    [],
+    [burner, isTransactionSheetOpen],
   );
 
   useEffect(() => {
-    const html5QrcodeScanner = new Html5QrcodeScanner(
-      "scanner",
-      qrScannerConfig,
-      false, // verbose
-    );
+    try {
+      html5QrcodeScanner = new Html5QrcodeScanner(
+        "scanner",
+        qrScannerConfig,
+        false, // verbose
+      );
+      console.log("render the qr scanner");
 
-    html5QrcodeScanner.render(onQRScanSuccess, onQRScanError);
+      html5QrcodeScanner.render(onQRScanSuccess, onQRScanError);
 
-    return () => {
-      html5QrcodeScanner;
-    };
-  }, []);
+      // cleanup function when component will unmount
+      return () => {
+        html5QrcodeScanner.clear().catch((error) => {
+          console.error("Failed to clear html5QrcodeScanner. ", error);
+        });
+      };
+    } catch (err) {}
+  }, [burner]);
+
+  // if (loading) {
+  //   return (
+  //     <DefaultLayout seo={seo}>
+  //       <main className="container max-w-lg py-10 space-y-8 text-center md:py-20">
+  //         <h1 className="text-4xl">Loading burner wallet</h1>
+  //         <LoadingSpinner visible={true} width={70} className="mx-auto" />
+  //       </main>
+  //     </DefaultLayout>
+  //   );
+  // }
 
   return (
     <DefaultLayout seo={seo}>
@@ -111,27 +157,7 @@ export default function Page() {
           </section>
 
           <div
-            className="p-3 overflow-hidden card min-w-[400px] min-h-[475px]"
-            onClick={() =>
-              prepareTransaction(async () => {
-                const solanaPayData = await proxySolanaPayRequest(
-                  SOLANA_PAY_URL["right"],
-                  burner!.publicKey.toBase58(),
-                );
-
-                console.log("\nfinal data:");
-                console.log(solanaPayData);
-
-                // toast(`final:` + JSON.stringify(solanaPayData));
-
-                return {
-                  transaction: solanaPayData.post.transaction,
-                  error: solanaPayData.post.error,
-                  // todo: add the SolanaPay payload info in here, and typed with a discriminator
-                  // payload: {}
-                };
-              })
-            }
+            className={`p-3 overflow-hidden card min-w-[400px] min-h-[475px]`}
             // onClick={() =>
             //   prepareTransaction(async () => {
             //     const transaction = await createTransfer(
@@ -156,6 +182,7 @@ export default function Page() {
             //   })
             // }
           >
+            {/* <Html5QrcodePlugin qrCodeSuccessCallback={onQRScanSuccess} /> */}
             <div id="scanner">Waiting for camera...</div>
           </div>
         </section>
