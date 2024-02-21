@@ -157,7 +157,7 @@ export default function Page() {
           </section>
 
           <div
-            className={`p-3 overflow-hidden card min-w-[400px] min-h-[475px]`}
+            className={`p-3 overflow-hidden card md:min-w-[400px] md:min-h-[475px]`}
             // onClick={() =>
             //   prepareTransaction(async () => {
             //     const transaction = await createTransfer(
