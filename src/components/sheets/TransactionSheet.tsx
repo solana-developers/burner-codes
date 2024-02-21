@@ -207,7 +207,11 @@ export const SignTransactionDetails = memo(
           </TransactionLineItemGroup>
         </section>
         <section className="flex items-center justify-between gap-2">
-          <button type="button" className="w-full btn btn-outline">
+          <button
+            onClick={() => resetPopup()}
+            type="button"
+            className="w-full btn btn-outline"
+          >
             Cancel
           </button>
           <button
