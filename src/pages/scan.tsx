@@ -183,7 +183,9 @@ export default function Page() {
             // }
           >
             {/* <Html5QrcodePlugin qrCodeSuccessCallback={onQRScanSuccess} /> */}
-            <div id="scanner">Waiting for camera...</div>
+            <div id="scanner">
+              <p className="text-xl text-center">Unable to locate camera</p>
+            </div>
           </div>
         </section>
       </main>
