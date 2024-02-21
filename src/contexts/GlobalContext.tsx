@@ -162,6 +162,11 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
       setLoading(true);
       setIsTransactionSheetOpen(true);
 
+      while (!burner) {
+        // do nothing since this should only take a short time while the page loads
+        // and we load the keypair from local storage
+      }
+
       try {
         let { transaction, error } = await resolver();
 
@@ -204,7 +209,7 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     },
-    [setIsTransactionSheetOpen, setLoading, sendTransaction],
+    [setIsTransactionSheetOpen, setLoading, sendTransaction, burner],
   );
 
   /**
