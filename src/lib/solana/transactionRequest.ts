@@ -2,40 +2,8 @@
  *
  */
 
+import { ProxySolanaPayRequest } from "@/types";
 import { Transaction, VersionedTransaction } from "@solana/web3.js";
-
-type SolanaPayGetResponse = {
-  /**
-   * The <label> value must be a UTF-8 string that describes the source of the
-   * transaction request. For example, this might be the name of a brand,
-   * store, application, or person making the request.
-   */
-  label?: string;
-  /**
-   * The <icon> value must be an absolute HTTP or HTTPS URL of an icon image.
-   * The file must be an SVG, PNG, or WebP image, or the wallet must reject
-   * it as malformed.
-   */
-  icon?: string;
-  /**
-   * Other keys might be returned from the
-   */
-  // todo;
-};
-
-type SolanaPayPostResponse = {
-  /** transaction for the user to sign */
-  transaction?: Transaction | VersionedTransaction;
-  /** optional message to show in the wallet ui */
-  message?: string;
-  /** optional error message to display in the ui */
-  error?: string;
-};
-
-type ProxySolanaPayRequest = {
-  get: SolanaPayGetResponse;
-  post: SolanaPayPostResponse;
-};
 
 /**
  * Make and process the GET request for SolanaPay Transaction requests
