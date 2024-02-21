@@ -1,3 +1,4 @@
+import type { PrepareTransactionResolver, TransactionDetails } from "@/types";
 import {
   createContext,
   FC,
@@ -13,7 +14,6 @@ import {
   clusterApiUrl,
   Connection,
   Keypair,
-  PublicKey,
   Transaction,
   VersionedTransaction,
 } from "@solana/web3.js";
@@ -270,29 +270,4 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
       />
     </GlobalContext.Provider>
   );
-};
-
-/**
- * function that resolves a promise containing a payload for the transaction sheet
- */
-type PrepareTransactionResolver =
-  () => Promise<PrepareTransactionResolverPayload>;
-
-type PrepareTransactionResolverPayload = {
-  /** the transaction for the user to sign */
-  transaction?: Transaction | VersionedTransaction;
-
-  /** error message and data to be displayed in the UI */
-  error?: string;
-
-  /** payload with additional details for the UI */
-  payload?: object;
-};
-
-type TransactionDetails = {
-  // todo: allow some sort of error message passing?
-  feePayer: PublicKey;
-  fee: number;
-  memo?: string;
-  // todo: add the simulation?
 };
