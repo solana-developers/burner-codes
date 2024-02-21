@@ -13,6 +13,7 @@ import {
   clusterApiUrl,
   Connection,
   Keypair,
+  PublicKey,
   Transaction,
   VersionedTransaction,
 } from "@solana/web3.js";
@@ -36,6 +37,7 @@ export interface MasterConfigurationState {
   ) => Promise<void>;
   prepareTransaction: (resolve: PrepareTransactionResolver) => void;
   resetPopup: () => void;
+  transactionDetails: TransactionDetails | null;
   // isTransactionSheetOpen: boolean;
   // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
@@ -59,6 +61,8 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   const [transaction, setTransaction] = useState<
     Transaction | VersionedTransaction | null
   >(null);
+  const [transactionDetails, setTransactionDetails] =
+    useState<TransactionDetails | null>(null);
   const [isTransactionSheetOpen, setIsTransactionSheetOpen] =
     useState<boolean>(false);
 
@@ -159,7 +163,12 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
       setIsTransactionSheetOpen(true);
 
       try {
-        const { transaction, error } = await resolver();
+        let { transaction, error } = await resolver();
+
+        // force the transaction into a versioned transaction
+        if (transaction instanceof Transaction) {
+          transaction = new VersionedTransaction(transaction.compileMessage());
+        }
 
         // todo: we should support some sort of error/warning messages to provide to a user
 
@@ -167,11 +176,26 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
           alert(`Error: ${error}`);
         }
 
-        if (transaction) {
-          sendTransaction(transaction);
-        } else {
-          alert("no transaction...");
+        if (!transaction) {
+          throw Error("No transaction was resolved");
+          return;
         }
+
+        const transactionDetails: Partial<TransactionDetails> = {
+          // the first static key is always the fee payer
+          feePayer: transaction.message.staticAccountKeys[0],
+          // default the fee to 5k lamports per signature
+          fee: transaction.signatures.length * 5_000,
+        };
+
+        await Promise.allSettled([
+          connection.getFeeForMessage(transaction.message).then(({ value }) => {
+            if (value) transactionDetails.fee = value;
+          }),
+        ]);
+
+        sendTransaction(transaction);
+        setTransactionDetails(transactionDetails as TransactionDetails);
       } catch (err) {
         // todo: we should support some sort of error/warning messages to provide to a user
         console.error("Unable to resolve transaction");
@@ -187,6 +211,7 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
    *
    */
   const resetPopup = useCallback(() => {
+    setTransactionDetails(null);
     setTransaction(null);
     setLoading(false);
     setIsTransactionSheetOpen(false);
@@ -232,6 +257,7 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         minRentCost,
         sendTransaction,
         prepareTransaction,
+        transactionDetails,
         resetPopup,
       }}
     >
@@ -261,4 +287,12 @@ type PrepareTransactionResolverPayload = {
 
   /** payload with additional details for the UI */
   payload?: object;
+};
+
+type TransactionDetails = {
+  // todo: allow some sort of error message passing?
+  feePayer: PublicKey;
+  fee: number;
+  memo?: string;
+  // todo: add the simulation?
 };
