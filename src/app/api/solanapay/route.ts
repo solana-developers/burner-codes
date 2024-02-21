@@ -73,14 +73,14 @@ export async function POST(req: Request) {
       console.log("GET: received");
 
       const data = await res.text();
-      console.log("data:", data);
+      // console.log("data:", data);
 
       if (!res.ok) {
         throw Error("Bad proxy response: GET");
       }
 
       responsePayload.get = JSON.parse(data);
-      console.info("getRes:", responsePayload.get);
+      // console.info("getRes:", responsePayload.get);
     });
 
     await fetch(url, {
@@ -98,14 +98,14 @@ export async function POST(req: Request) {
       console.log("POST: received");
 
       const data = await res.text();
-      console.log("data:", data);
+      // console.log("data:", data);
 
       if (!res.ok) {
         throw Error("Bad proxy response: POST");
       }
 
       responsePayload.post = JSON.parse(data);
-      console.info("postRes:", responsePayload.post);
+      // console.info("postRes:", responsePayload.post);
     });
 
     return Response.json(responsePayload);

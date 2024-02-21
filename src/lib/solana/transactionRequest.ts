@@ -60,15 +60,15 @@ export async function proxySolanaPayRequest(
     });
 
     const text = await res.text();
-    console.log("text:", text);
+    // console.log("text:", text);
 
     if (!res.ok) {
       console.log("Bad Response:");
-      console.log(res);
+      // console.log(res);
       throw Error(text);
     }
 
-    console.log("Good Response");
+    // console.log("Good Response");
 
     try {
       const data: ProxySolanaPayRequest = JSON.parse(text);
