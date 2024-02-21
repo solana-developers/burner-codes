@@ -18,7 +18,7 @@ export type PrepareTransactionResolverPayload = {
   error?: string;
 
   /** payload with additional details for the UI */
-  payload?: object;
+  payload?: PayloadTransactionRequest;
 };
 
 export type TransactionDetails = {
@@ -61,3 +61,7 @@ export type ProxySolanaPayRequest = {
   get: SolanaPayGetResponse;
   post: SolanaPayPostResponse;
 };
+
+export type PayloadTransactionRequest = {
+  __ID: "SolanaPay_Transaction";
+} & ProxySolanaPayRequest;
