@@ -11,8 +11,9 @@ import {
   copyToClipboard,
   explorerURL,
   formatLamportsToSol,
-} from "@/utils/helpers";
+} from "@/lib/helpers";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // define page specific seo settings
 const seo: NextSeoProps = {
@@ -22,7 +23,7 @@ const seo: NextSeoProps = {
 };
 
 export default function Page() {
-  const { burner, balance, setBalance, cluster, connection } =
+  const { burner, balance, setBalance, cluster, connection, loading } =
     useGlobalContext();
 
   // track the needed state for the new various dialogs
@@ -75,24 +76,23 @@ export default function Page() {
     toast.success(message);
   }
 
-  // if (loading) {
-  //   return (
-  //     <DefaultLayout seo={seo}>
-  //       <main className="container max-w-lg py-10 space-y-8 md:py-20">
-  //         loading burner wallet
-  //       </main>
-  //     </DefaultLayout>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <DefaultLayout seo={seo}>
+        <main className="container max-w-lg py-10 space-y-8 text-center md:py-20">
+          <h1 className="text-4xl">Loading burner wallet</h1>
+          <LoadingSpinner visible={true} width={70} className="mx-auto" />
+        </main>
+      </DefaultLayout>
+    );
+  }
 
   return (
     <DefaultLayout seo={seo}>
       <main className="container max-w-lg py-10 space-y-8 md:py-20">
         <section className="space-y-6">
-          <section className="space-y-2">
-            <h1 className="text-4xl text-center">
-              {formatLamportsToSol(balance)}
-            </h1>
+          <section className="space-y-2 text-center">
+            <h1 className="text-4xl">{formatLamportsToSol(balance)}</h1>
 
             <p className="text-center text-gray-500">on Solana {cluster}</p>
           </section>
@@ -151,10 +151,14 @@ export default function Page() {
               <button
                 type={"button"}
                 onClick={() => requestAirdrop()}
-                className="btn btn-dark"
+                className="inline-flex justify-center btn btn-dark"
                 disabled={airdropping}
               >
                 Request Airdrop
+                <LoadingSpinner
+                  visible={airdropping}
+                  className="absolute right-3"
+                />
               </button>
             </section>
           </section>

@@ -13,15 +13,12 @@ import {
   Transaction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { LAMPORTS_PER_SIGNER } from "@/utils/const";
-import {
-  explorerURL,
-  formatLamportsToSol,
-  saveClaimCode,
-} from "@/utils/helpers";
+import { LAMPORTS_PER_SIGNER } from "@/lib/const";
+import { explorerURL, formatLamportsToSol, saveClaimCode } from "@/lib/helpers";
 
 import TransferLinkCreated from "@/components/transfers/TransferLinkCreated";
 import SuccessDialog from "@/components/dialogs/SuccessDialog";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // define page specific seo settings
 const seo: NextSeoProps = {
@@ -211,11 +208,14 @@ export default function Page() {
             <section className="grid justify-between w-full grid-cols-1 gap-2 mt-4 text-center">
               <button
                 type="submit"
-                className="w-full btn btn-dark"
-                // onClick={() => ()}
+                className="inline-flex justify-center w-full btn btn-dark"
                 disabled={processing}
               >
                 Create claim link
+                <LoadingSpinner
+                  visible={processing}
+                  className="absolute right-3"
+                />
               </button>
 
               <p>or</p>

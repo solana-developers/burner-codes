@@ -1,16 +1,25 @@
+import type { PrepareTransactionResolver, TransactionDetails } from "@/types";
 import {
   createContext,
   FC,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
-import { Cluster, clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
+import {
+  Cluster,
+  clusterApiUrl,
+  Connection,
+  Keypair,
+  Transaction,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import base58 from "bs58";
-import { LOCAL_STORAGE_BURNER_KEY } from "@/utils/const";
+import { LOCAL_STORAGE_BURNER_KEY } from "@/lib/const";
+import { TransactionSheet } from "@/components/sheets/TransactionSheet";
 
 export interface MasterConfigurationState {
   connection: Connection;
@@ -23,6 +32,14 @@ export interface MasterConfigurationState {
   cluster: Cluster;
   setCluster(cluster: SetStateAction<Cluster>): void;
   minRentCost: number;
+  sendTransaction: (
+    transaction: Transaction | VersionedTransaction,
+  ) => Promise<void>;
+  prepareTransaction: (resolve: PrepareTransactionResolver) => void;
+  resetPopup: () => void;
+  transactionDetails: TransactionDetails | null;
+  isTransactionSheetOpen: boolean;
+  // setIsTransactionSheetOpen(loading: SetStateAction<boolean>): void;
 }
 
 export const GlobalContext = createContext<MasterConfigurationState>(
@@ -40,6 +57,14 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   const [burner, setBurner] = useState<Keypair | undefined>();
   const [cluster, setCluster] = useState<Cluster>("devnet");
   const [balance, setBalance] = useState<number>(0);
+
+  const [transaction, setTransaction] = useState<
+    Transaction | VersionedTransaction | null
+  >(null);
+  const [transactionDetails, setTransactionDetails] =
+    useState<TransactionDetails | null>(null);
+  const [isTransactionSheetOpen, setIsTransactionSheetOpen] =
+    useState<boolean>(false);
 
   // current base rent for 0 bytes is: 890_880 lamports
   const [minRentCost, setMinRentCost] = useState<number>(890_880);
@@ -112,6 +137,112 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
   }
 
   /**
+   * Send a transaction to the user and request their approval/signature
+   */
+  const sendTransaction = useCallback(
+    async (transaction: Transaction | VersionedTransaction) => {
+      console.log("[sendTransaction]", transaction);
+
+      // todo: pre parse the transaction?
+
+      setTransaction(transaction);
+      setIsTransactionSheetOpen(true);
+      setLoading(false);
+    },
+    [setIsTransactionSheetOpen, setTransaction, setLoading],
+  );
+
+  /**
+   * Prepare a transaction and request the user sign it
+   */
+  const prepareTransaction = useCallback(
+    async (resolver: PrepareTransactionResolver) => {
+      if (isTransactionSheetOpen) {
+        return console.log("currently isTransactionSheetOpen open");
+      }
+
+      console.log("[prepareTransaction]");
+
+      // if (loading) {
+      //   return console.log("currently loading");
+      // }
+
+      setLoading(true);
+      setIsTransactionSheetOpen(true);
+
+      // while (!burner) {
+      //   // do nothing since this should only take a short time while the page loads
+      //   // and we load the keypair from local storage
+      // }
+
+      try {
+        let { transaction, error } = await resolver();
+
+        // force the transaction into a versioned transaction
+        if (transaction instanceof Transaction) {
+          transaction = new VersionedTransaction(transaction.compileMessage());
+        }
+
+        // todo: we should support some sort of error/warning messages to provide to a user
+
+        if (!!error) {
+          alert(`Error: ${error}`);
+        }
+
+        if (!transaction) {
+          throw Error("No transaction was resolved");
+          return;
+        }
+
+        const transactionDetails: Partial<TransactionDetails> = {
+          // the first static key is always the fee payer
+          feePayer: transaction.message.staticAccountKeys[0],
+          // default the fee to 5k lamports per signature
+          fee: transaction.signatures.length * 5_000,
+        };
+
+        await Promise.allSettled([
+          connection.getFeeForMessage(transaction.message).then(({ value }) => {
+            if (value) transactionDetails.fee = value;
+          }),
+        ]);
+
+        sendTransaction(transaction);
+        setTransactionDetails(transactionDetails as TransactionDetails);
+      } catch (err) {
+        // todo: we should support some sort of error/warning messages to provide to a user
+        console.error("Unable to resolve transaction");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      setIsTransactionSheetOpen,
+      isTransactionSheetOpen,
+      loading,
+      setLoading,
+      sendTransaction,
+      burner,
+    ],
+  );
+
+  /**
+   *
+   */
+  const resetPopup = useCallback(() => {
+    setTransactionDetails(null);
+    setTransaction(null);
+    setLoading(false);
+    setIsTransactionSheetOpen(false);
+  }, [
+    transaction,
+    isTransactionSheetOpen,
+    setIsTransactionSheetOpen,
+    setLoading,
+  ]);
+
+  /**
    * Get the initial state data for the keypair/cluster
    */
   useEffect(() => {
@@ -144,9 +275,21 @@ export const GlobalContextProvider: FC<{ children: ReactNode }> = ({
         cluster,
         setCluster,
         minRentCost,
+        sendTransaction,
+        prepareTransaction,
+        // setIsTransactionSheetOpen,
+        isTransactionSheetOpen,
+        transactionDetails,
+        resetPopup,
       }}
     >
       {children}
+
+      <TransactionSheet
+        transaction={transaction}
+        isOpen={isTransactionSheetOpen}
+        setIsOpen={setIsTransactionSheetOpen}
+      />
     </GlobalContext.Provider>
   );
 };

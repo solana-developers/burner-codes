@@ -24,14 +24,14 @@ export default function App({ Component, pageProps }: AppProps) {
         containerClassName=""
         containerStyle={{}}
         toastOptions={{
-          duration: 4000,
+          duration: 5000,
           // className: "w-full",
           // className: "bg-blue-500 text-white",
           icon: <InformationCircleIcon className="w-6 h-6" />,
 
           // Default options for specific types
           success: {
-            className: "text-black",
+            className: "!text-white !bg-green-500",
             icon: <InformationCircleIcon className="w-6 h-6 text-green-600" />,
           },
           error: {
